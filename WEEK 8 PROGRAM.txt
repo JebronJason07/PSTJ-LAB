@@ -1,0 +1,689 @@
+WEEK 8
+TASK 1 Java Method Overriding 
+
+import java.util.*;
+class Sports{
+
+    String getName(){
+        return "Generic Sports";
+    }
+  
+    void getNumberOfTeamMembers(){
+        System.out.println( "Each team has n players in " + getName() );
+    }
+}
+
+class Soccer extends Sports{
+    @Override
+    String getName(){
+        return "Soccer Class";
+    }
+
+@Override
+    void getNumberOfTeamMembers() {
+        System.out.println("Each team has 11 players in " + getName());
+    }
+
+}
+
+Output
+Generic Sports
+Each team has n players in Generic Sports
+Soccer Class
+Each team has 11 players in Soccer Class
+
+TASK 2 Java Method Overriding 2 (Super Keyword)
+
+import java.util.*;
+import java.io.*;
+
+class BiCycle{
+	String define_me(){
+		return "a vehicle with pedals.";
+	}
+}
+
+class MotorCycle extends BiCycle{
+	String define_me(){
+		return "a cycle with an engine.";
+	}
+	
+	MotorCycle(){
+		System.out.println("Hello I am a motorcycle, I am "+ define_me());
+
+		String temp= super.define_me(); //Fix this line
+
+		System.out.println("My ancestor is a cycle who is "+ temp );
+	}
+	
+}
+class Solution{
+	public static void main(String []args){
+		MotorCycle M=new MotorCycle();
+	}
+}
+
+Output 
+Hello I am a motorcycle, I am a cycle with an engine.
+My ancestor is a cycle who is a vehicle with pedals.
+
+TASK 3 Java Singleton
+import java.io.*;
+import java.util.*;
+import java.text.*;
+import java.math.*;
+import java.util.regex.*;
+import java.lang.reflect.*;
+
+
+class Singleton {
+
+    private static Singleton single_instance = null;
+
+    public String str;
+
+    private Singleton() {
+    }
+
+    public static Singleton getSingleInstance() {
+        if (single_instance == null) {
+            single_instance = new Singleton();
+        }
+        return single_instance;
+    }
+}
+
+public class Main {
+
+ public static void main(String args[])throws Exception{
+	
+	Scanner sc=new Scanner(System.in);
+	Singleton s1 = Singleton.getSingleInstance(); //retrive the single instance
+    Singleton s2=Singleton.getSingleInstance();
+    assert(s1==s2);
+    
+	//verify that the constructor is private
+	Class c=s1.getClass();
+	Constructor[] allConstructors = c.getDeclaredConstructors();
+	assert allConstructors.length==1;
+	for (Constructor ctor : allConstructors) 
+	{
+		if(ctor.getModifiers()!=2 || !ctor.toString().equals("private Singleton()")) //The constructor must be private
+		{
+			System.out.println("Wrong class!");
+		}
+	}
+    String str=sc.nextLine();
+	s1.str=str;
+    s2.str=str;
+    System.out.println("Hello I am a singleton! Let me say "+str+" to you");
+	
+ }
+
+}
+
+Output:
+
+Input 
+hello world
+Output 
+Hello I am a singleton! Let me say hello world to you
+
+TASK 4 Java Vistor Pattern
+import java.util.ArrayList;
+import java.io.*;
+import java.util.*;
+import java.text.*;
+import java.math.*;
+import java.util.regex.*;
+
+import java.util.ArrayList;
+import java.util.Scanner;
+
+enum Color {
+    RED, GREEN
+}
+
+abstract class Tree {
+
+    private int value;
+    private Color color;
+    private int depth;
+
+    public Tree(int value, Color color, int depth) {
+        this.value = value;
+        this.color = color;
+        this.depth = depth;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public abstract void accept(TreeVis visitor);
+}
+
+class TreeNode extends Tree {
+
+    private ArrayList<Tree> children = new ArrayList<>();
+
+    public TreeNode(int value, Color color, int depth) {
+        super(value, color, depth);
+    }
+
+    public void accept(TreeVis visitor) {
+        visitor.visitNode(this);
+
+        for (Tree child : children) {
+            child.accept(visitor);
+        }
+    }
+
+    public void addChild(Tree child) {
+        children.add(child);
+    }
+}
+
+class TreeLeaf extends Tree {
+
+    public TreeLeaf(int value, Color color, int depth) {
+        super(value, color, depth);
+    }
+
+    public void accept(TreeVis visitor) {
+        visitor.visitLeaf(this);
+    }
+}
+
+abstract class TreeVis
+{
+    public abstract int getResult();
+    public abstract void visitNode(TreeNode node);
+    public abstract void visitLeaf(TreeLeaf leaf);
+
+}
+
+class SumInLeavesVisitor extends TreeVis {
+    private int sum = 0;
+
+    public int getResult() {
+        return sum;
+    }
+
+    public void visitNode(TreeNode node) {
+        // Nothing to do for non-leaf nodes
+    }
+
+    public void visitLeaf(TreeLeaf leaf) {
+        sum += leaf.getValue();
+    }
+}
+
+class ProductOfRedNodesVisitor extends TreeVis {
+    private long product = 1;
+    private static final int MOD = 1000000007;
+
+    public int getResult() {
+        return (int) product;
+    }
+
+    public void visitNode(TreeNode node) {
+        if (node.getColor() == Color.RED) {
+            product = (product * node.getValue()) % MOD;
+        }
+    }
+
+    public void visitLeaf(TreeLeaf leaf) {
+        if (leaf.getColor() == Color.RED) {
+            product = (product * leaf.getValue()) % MOD;
+        }
+    }
+}
+
+class FancyVisitor extends TreeVis {
+    private int evenDepthSum = 0;
+    private int greenLeafSum = 0;
+
+    public int getResult() {
+        return Math.abs(evenDepthSum - greenLeafSum);
+    }
+
+    public void visitNode(TreeNode node) {
+        if (node.getDepth() % 2 == 0) {
+            evenDepthSum += node.getValue();
+        }
+    }
+
+    public void visitLeaf(TreeLeaf leaf) {
+        if (leaf.getColor() == Color.GREEN) {
+            greenLeafSum += leaf.getValue();
+        }
+    }
+}
+
+public class Solution {
+  
+    public static Tree solve() {
+    Scanner sc = new Scanner(System.in);
+
+    int n = sc.nextInt();
+
+    int[] values = new int[n];
+    for (int i = 0; i < n; i++) {
+        values[i] = sc.nextInt();
+    }
+
+    int[] colors = new int[n];
+    for (int i = 0; i < n; i++) {
+        colors[i] = sc.nextInt();
+    }
+
+    ArrayList<Integer>[] graph = new ArrayList[n];
+
+    for (int i = 0; i < n; i++) {
+        graph[i] = new ArrayList<>();
+    }
+
+    for (int i = 0; i < n - 1; i++) {
+        int u = sc.nextInt() - 1;
+        int v = sc.nextInt() - 1;
+
+        graph[u].add(v);
+        graph[v].add(u);
+    }
+
+    return buildTree(0, -1, 0, values, colors, graph);
+}
+
+public static Tree buildTree(
+        int current,
+        int parent,
+        int depth,
+        int[] values,
+        int[] colors,
+        ArrayList<Integer>[] graph) {
+
+    Color color = (colors[current] == 0) ? Color.RED : Color.GREEN;
+
+    ArrayList<Integer> children = new ArrayList<>();
+
+    for (int next : graph[current]) {
+        if (next != parent) {
+            children.add(next);
+        }
+    }
+
+    if (children.isEmpty()) {
+        return new TreeLeaf(values[current], color, depth);
+    }
+
+    TreeNode node = new TreeNode(values[current], color, depth);
+
+    for (int child : children) {
+        node.addChild(
+            buildTree(child, current, depth + 1, values, colors, graph)
+        );
+    }
+
+    return node;
+}
+
+
+    public static void main(String[] args) {
+      	Tree root = solve();
+		SumInLeavesVisitor vis1 = new SumInLeavesVisitor();
+      	ProductOfRedNodesVisitor vis2 = new ProductOfRedNodesVisitor();
+      	FancyVisitor vis3 = new FancyVisitor();
+
+      	root.accept(vis1);
+      	root.accept(vis2);
+      	root.accept(vis3);
+
+      	int res1 = vis1.getResult();
+      	int res2 = vis2.getResult();
+      	int res3 = vis3.getResult();
+
+      	System.out.println(res1);
+     	System.out.println(res2);
+    	System.out.println(res3);
+	}
+}
+
+Output:
+Input 
+5
+4 7 2 5 12
+0 1 0 0 1
+1 2
+1 3
+3 4
+3 5
+Output 
+24
+40
+
+TASK 5 Java Iterator
+import java.util.*;
+public class Main{
+	
+   static Iterator func(ArrayList mylist){
+      Iterator it=mylist.iterator();
+      while(it.hasNext()){
+         Object element = it.next();
+         if(element instanceof String )//Hints: use instanceof operator
+
+			break;
+		}
+      return it;
+      
+   }
+   @SuppressWarnings({ "unchecked" })
+   public static void main(String []args){
+      ArrayList mylist = new ArrayList();
+      Scanner sc = new Scanner(System.in);
+      int n = sc.nextInt();
+      int m = sc.nextInt();
+      for(int i = 0;i<n;i++){
+         mylist.add(sc.nextInt());
+      }
+      
+      mylist.add("###");
+      for(int i=0;i<m;i++){
+         mylist.add(sc.next());
+      }
+      
+      Iterator it=func(mylist);
+      while(it.hasNext()){
+         Object element = it.next();
+         System.out.println((String)element);
+      }
+   }
+}
+
+Output:
+
+Input 
+2 2
+42
+10
+hello
+java
+Output 
+hello
+java
+
+TASK 6 Java Interface
+import java.util.*;
+interface AdvancedArithmetic{
+  int divisor_sum(int n);
+}
+
+class MyCalculator implements AdvancedArithmetic {
+
+    public int divisor_sum(int n) {
+        int sum = 0;
+
+        for (int i = 1; i <= n; i++) {
+            if (n % i == 0) {
+                sum += i;
+            }
+        }
+
+        return sum;
+    }
+}
+
+class Solution{
+    public static void main(String []args){
+        MyCalculator my_calculator = new MyCalculator();
+        System.out.print("I implemented: ");
+        ImplementedInterfaceNames(my_calculator);
+        Scanner sc = new Scanner(System.in);
+        int n = sc.nextInt();
+        System.out.print(my_calculator.divisor_sum(n) + "\n");
+      	sc.close();
+    }
+    /*
+     *  ImplementedInterfaceNames method takes an object and prints the name of the interfaces it implemented
+     */
+    static void ImplementedInterfaceNames(Object o){
+        Class[] theInterfaces = o.getClass().getInterfaces();
+        for (int i = 0; i < theInterfaces.length; i++){
+            String interfaceName = theInterfaces[i].getName();
+            System.out.println(interfaceName);
+        }
+    }
+}
+
+Output:
+Input 
+6
+Your Output 
+I implemented: AdvancedArithmetic
+12
+ 
+TASK 7 Java Hashset
+import java.io.*;
+import java.util.*;
+import java.text.*;
+import java.math.*;
+import java.util.regex.*;
+
+public class Solution {
+
+ public static void main(String[] args) {
+        Scanner s = new Scanner(System.in);
+        int t = s.nextInt();
+        String [] pair_left = new String[t];
+        String [] pair_right = new String[t];
+        
+        for (int i = 0; i < t; i++) {
+            pair_left[i] = s.next();
+            pair_right[i] = s.next();
+        }
+
+//Write your code here
+HashSet<String> set = new HashSet<>();
+
+for (int i = 0; i < t; i++) {
+    set.add(pair_left[i] + " " + pair_right[i]);
+    System.out.println(set.size());
+}
+
+    }
+}
+
+Input 
+5
+john tom
+john mary
+john tom
+mary anna
+mary anna
+Output 
+1
+2
+2
+3
+3
+
+TASK 8 Java Factory
+import java.util.*;
+import java.security.*;
+interface Food {
+	 public String getType();
+	}
+	class Pizza implements Food {
+	 public String getType() {
+	 return "Someone ordered a Fast Food!";
+	 }
+	}
+
+	class Cake implements Food {
+
+	 public String getType() {
+	 return "Someone ordered a Dessert!";
+	 }
+	}
+	class FoodFactory {
+		public Food getFood(String order) {
+
+
+if (order.equalsIgnoreCase("pizza")) {
+    return new Pizza();
+} else if (order.equalsIgnoreCase("cake")) {
+    return new Cake();
+}
+
+return null;
+}//End of getFood method
+
+	}//End of factory class
+
+	public class Solution {
+
+	 public static void main(String args[]){
+			Do_Not_Terminate.forbidExit();
+
+		try{
+
+			Scanner sc=new Scanner(System.in);
+			//creating the factory
+			FoodFactory foodFactory = new FoodFactory();
+	
+			//factory instantiates an object
+			Food food = foodFactory.getFood(sc.nextLine());
+	
+			
+			System.out.println("The factory returned "+food.getClass());
+			System.out.println(food.getType());
+		}
+		catch (Do_Not_Terminate.ExitTrappedException e) {
+			System.out.println("Unsuccessful Termination!!");
+		}
+	 }
+
+	}
+	class Do_Not_Terminate {
+		 
+	    public static class ExitTrappedException extends SecurityException {
+
+			private static final long serialVersionUID = 1L;
+	    }
+	 
+	    public static void forbidExit() {
+	        final SecurityManager securityManager = new SecurityManager() {
+	            @Override
+	            public void checkPermission(Permission permission) {
+	                if (permission.getName().contains("exitVM")) {
+	                    throw new ExitTrappedException();
+	                }
+	            }
+	        };
+	        System.setSecurityManager(securityManager);
+	    }
+	}	
+		output:
+
+Input 
+cake
+Output 
+The factory returned class Cake
+Someone ordered a Dessert!
+
+TASK 9 Java Exception Handling
+import java.util.Scanner;
+class MyCalculator {
+    public long power(int n, int p) throws Exception {
+    if (n < 0 || p < 0) {
+        throw new Exception("n or p should not be negative.");
+    }
+
+    if (n == 0 && p == 0) {
+        throw new Exception("n and p should not be zero.");
+    }
+
+    return (long) Math.pow(n, p);
+}
+    
+}
+
+public class Solution {
+    public static final MyCalculator my_calculator = new MyCalculator();
+    public static final Scanner in = new Scanner(System.in);
+    
+    public static void main(String[] args) {
+        while (in .hasNextInt()) {
+            int n = in .nextInt();
+            int p = in .nextInt();
+            
+            try {
+                System.out.println(my_calculator.power(n, p));
+            } catch (Exception e) {
+                System.out.println(e);
+            }
+        }
+    }
+}
+
+Output:
+Input 
+3 5
+2 4
+0 0
+-1 -2
+-1 3
+Output 
+243
+16
+java.lang.Exception: n and p should not be zero.
+java.lang.Exception: n or p should not be negative.
+java.lang.Exception: n or p should not be negative.
+
+TASK 10 Java Exception Handling Try Catch
+import java.io.*;
+import java.util.*;
+import java.text.*;
+import java.math.*;
+import java.util.regex.*;
+
+public class Solution {
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        try {
+            int a = sc.nextInt();
+            int b = sc.nextInt();
+
+            System.out.println(a / b);
+        }
+        catch (InputMismatchException e) {
+            System.out.println("java.util.InputMismatchException");
+        }
+        catch (ArithmeticException e) {
+            System.out.println(e);
+        }
+
+        sc.close();
+
+    }
+    
+}
+
+Output:
+Input 
+10
+3
+Output 
+3
+Expected Output
+3
